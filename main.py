@@ -1,4 +1,3 @@
-# main.py
 import torch
 from model import NeuralODEPKModel
 from data import load_all_data
@@ -6,9 +5,9 @@ from train import train_model_multi
 from plotting import plot_training_validation_loss, plot_results, plot_residuals, plot_parity
 
 def main():
-    # Select device (GPU if available)
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    csv_filename = "examplomycin.csv"  # Ensure this CSV is in your working directory
+    csv_filename = "examplomycin.csv" 
     
     # Load multi-subject data and split into training and validation sets
     (x0_train, t, y_train, train_ids), (x0_val, t, y_val, val_ids) = load_all_data(csv_filename, device=device, train_ratio=0.8)

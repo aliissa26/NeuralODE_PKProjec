@@ -1,4 +1,3 @@
-# data.py
 import torch
 import pandas as pd
 import numpy as np
@@ -10,7 +9,7 @@ def load_data(csv_filename, subject_id=1, device='cpu'):
     df = pd.read_csv(csv_filename)
     subject_data = df[df["ID"] == subject_id].sort_values("TIME")
     
-    # Time points (assumed common across subjects)
+    # Time points 
     t_np = subject_data["TIME"].values.astype(np.float32)
     t = torch.tensor(t_np, dtype=torch.float32, device=device)
     
