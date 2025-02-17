@@ -1,3 +1,4 @@
+# plotting.py
 import matplotlib.pyplot as plt
 
 def plot_training_loss(losses):
@@ -10,7 +11,21 @@ def plot_training_loss(losses):
     plt.grid(True)
     plt.show()
 
-def plot_results(t_np, y_true, y_pred):
+def plot_training_validation_loss(train_losses, val_losses):
+    plt.figure(figsize=(8, 5))
+    plt.plot(train_losses, label="Training Loss")
+    plt.plot(val_losses, label="Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("MSE Loss")
+    plt.title("Training and Validation Loss over Epochs")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+def plot_results(t_np, y_true, y_pred, subject_id=None):
+    """
+    Plot observed vs. predicted DV for one subject.
+    """
     y_true_np = y_true.cpu().detach().numpy()
     y_pred_np = y_pred.cpu().detach().numpy()
     plt.figure(figsize=(10, 6))
@@ -18,7 +33,10 @@ def plot_results(t_np, y_true, y_pred):
     plt.plot(t_np, y_pred_np, 'r*-', label="Predicted DV")
     plt.xlabel("Time")
     plt.ylabel("Drug Concentration (DV)")
-    plt.title("Observed vs. Predicted DV")
+    title_str = "Observed vs. Predicted DV"
+    if subject_id is not None:
+        title_str += f" (Subject {subject_id})"
+    plt.title(title_str)
     plt.legend()
     plt.grid(True)
     plt.show()
