@@ -1,11 +1,10 @@
-# model.py
 import torch
 import torch.nn as nn
 from torchdiffeq import odeint
 
 class ODEFunc(nn.Module):
     """
-    Neural network representing the ODE dynamics.
+    Neural network representing the ODE dynamics in the latent space.
     """
     def __init__(self, latent_dim):
         super(ODEFunc, self).__init__()
@@ -20,7 +19,7 @@ class ODEFunc(nn.Module):
 
 class Encoder(nn.Module):
     """
-    Encoder: maps initial features (AMT, WT) to a latent state.
+    Encoder: maps initial features [AMT, WT] to a latent state.
     """
     def __init__(self, input_dim, latent_dim):
         super(Encoder, self).__init__()
@@ -35,7 +34,7 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     """
-    Decoder: maps the latent state to the output (DV).
+    Decoder: maps the latent state to the output drug concentration (DV).
     """
     def __init__(self, latent_dim, output_dim):
         super(Decoder, self).__init__()
@@ -50,14 +49,14 @@ class Decoder(nn.Module):
 
 class NeuralODEPKModel(nn.Module):
     """
-    End-to-end model: Encoder -> Neural ODE -> Decoder.
+    End-to-end Neural ODE PK Model: Encoder -> ODE solver -> Decoder.
     
-    Input:
-      - x0: initial features of shape (batch, input_dim)
-      - t: time points of shape (T,)
-    
+    Inputs:
+      - x0: initial features (batch, input_dim)
+      - t: time points (T,)
+      
     Output:
-      - y_pred: predictions of shape (T, batch, output_dim)
+      - y_pred: predicted drug concentration (T, batch, output_dim)
     """
     def __init__(self, input_dim, latent_dim, output_dim):
         super(NeuralODEPKModel, self).__init__()
@@ -66,10 +65,10 @@ class NeuralODEPKModel(nn.Module):
         self.decoder = Decoder(latent_dim, output_dim)
     
     def forward(self, x0, t):
-        # Encode initial condition
-        z0 = self.encoder(x0)  # shape: (batch, latent_dim)
-        # Solve ODE over time (returns shape: (T, batch, latent_dim))
-        z_t = odeint(self.odefunc, z0, t)
-        # Decode the latent trajectory (returns shape: (T, batch, output_dim))
-        y_pred = self.decoder(z_t)
+        # Encode the initial condition
+        z0 = self.encoder(x0)  # (batch, latent_dim)
+        # Solve the ODE over the common time grid
+        z_t = odeint(self.odefunc, z0, t)  # (T, batch, latent_dim)
+        # Decode the latent trajectory to predict DV
+        y_pred = self.decoder(z_t)  # (T, batch, output_dim)
         return y_pred
